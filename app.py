@@ -7,6 +7,14 @@ import tempfile
 import matplotlib.pyplot as plt
 app = Flask(__name__)
 
+
+UPLOAD_FOLDER = os.path.join('static', 'upload')  # Define the upload folder
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+
 # Define and load the model
 model_unet = tf.keras.models.load_model('model_segmentationUnet.h5')
 
@@ -16,8 +24,18 @@ def index():
 
 @app.route('/segment', methods=['POST'])
 def segment():
-    # Get the uploaded image file
+
+    if 'file' not in request.files:
+        return 'No file part'
+
     image_file = request.files['file']
+    
+    if image_file.filename == '':
+        return 'No selected file'
+
+    # Save the uploaded image
+    upload_path = os.path.join(app.config['UPLOAD_FOLDER'], 'testImage.jpg')
+    image_file.save(upload_path)
 
     # Open the image and convert it to RGB
     img = Image.open(image_file)
@@ -36,8 +54,7 @@ def segment():
     segmentation_array_scaled = (segmentation * 255).astype(np.uint8)
     segmentation_array_reshaped = np.squeeze(segmentation_array_scaled, axis=(0, 3))
     segmentation_image = Image.fromarray(segmentation_array_reshaped)
-
-    # 
+    # adding clors
     plt.imshow(segmentation_array_reshaped, cmap='gnuplot', alpha=1.0)
     plt.axis('off')
     # 
@@ -48,7 +65,7 @@ def segment():
     plt.savefig(output_file_path, bbox_inches='tight', pad_inches=0)
     print("Segmentation output image saved at:", output_file_path)
     plt.close()
-    return render_template('result.html', segmentation_path='static/images/segmentation_output.jpg')
+    return render_template('result.html', segmentation_path='static/images/segmentation_output.jpg' , test_path = 'static/upload/testImage.jpg')
 
 if __name__ == '__main__':
     app.run(debug=True)
