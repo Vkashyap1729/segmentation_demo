@@ -4,12 +4,57 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Segmentation Project</title>
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link href="static/styles.css" rel="stylesheet" />
   </head>
   <body>
-    <h1>Segmentation Project</h1>
-    <form action="/segment" method="post" enctype="multipart/form-data">
-      <input type="file" name="file" accept=".png, .jpg, .jpeg" required />
-      <button type="submit">Submit</button>
-    </form>
+    <div class="container">
+      <h1 class="mt-5">Segmentation Project</h1>
+      <form
+        action="/segment"
+        method="post"
+        enctype="multipart/form-data"
+        class="mt-4"
+        id="uploadForm"
+      >
+        <div class="form-group">
+          <label for="file">Upload Image</label>
+          <input
+            type="file"
+            class="form-control-file"
+            id="file"
+            name="file"
+            accept=".png, .jpg, .jpeg"
+            required
+          />
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </form>
+      <h2 class="mt-4">Preview Uploaded Image</h2>
+      <!-- New heading -->
+      <div id="imagePreview" class="mt-2"></div>
+      <!-- Moved the margin class to the div -->
+    </div>
+
+    <script>
+      document.getElementById('file').addEventListener('change', function () {
+        const file = this.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            const imagePreview = document.getElementById('imagePreview');
+            imagePreview.innerHTML =
+              '<img src="' +
+              e.target.result +
+              '" class="preview-image" alt="Uploaded Image">';
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+    </script>
   </body>
 </html>
